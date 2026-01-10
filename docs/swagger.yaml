@@ -1,0 +1,58 @@
+definitions:
+  handlers.GetAllNodesResponse:
+    properties:
+      nodes:
+        items:
+          $ref: '#/definitions/models.Node'
+        type: array
+    type: object
+  models.Container:
+    properties:
+      name:
+        type: string
+      project:
+        type: string
+    type: object
+  models.Node:
+    properties:
+      containers:
+        items:
+          $ref: '#/definitions/models.Container'
+        type: array
+      location:
+        type: string
+      network:
+        $ref: '#/definitions/models.NodeNetwork'
+      provider:
+        type: string
+      uptime:
+        type: number
+    type: object
+  models.NodeNetwork:
+    properties:
+      download:
+        type: integer
+      upload:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /metrics/nodes:
+    get:
+      description: Returns array of nodes with metrics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetAllNodesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Get all nodes
+      tags:
+      - metrics
+swagger: "2.0"
