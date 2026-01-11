@@ -43,6 +43,10 @@ func (s *MetricsService) getNodeUptime(ctx context.Context, instance string) (fl
 		return 0, error
 	}
 
+	if len(uptimeResult) == 0 {
+		return 0, fmt.Errorf("no uptime data for instance %s", instance)
+	}
+
 	uptime := math.Floor(float64(uptimeResult[0].Value))
 
 	return uptime, nil
@@ -55,10 +59,18 @@ func (s *MetricsService) getNodeNetworkStatistics(ctx context.Context, instance 
 		return models.NodeNetwork{}, error
 	}
 
+	if len(downloadResult) == 0 {
+		return models.NodeNetwork{}, fmt.Errorf("no download data for instance %s", instance)
+	}
+
 	uploadResult, error := prometheus.GetNetworkUploadRate(ctx, s.prometheusAPI, instance)
 
 	if error != nil {
 		return models.NodeNetwork{}, error
+	}
+
+	if len(uploadResult) == 0 {
+		return models.NodeNetwork{}, fmt.Errorf("no upload data for instance %s", instance)
 	}
 
 	download := int(math.Floor(float64(downloadResult[0].Value)))
@@ -98,18 +110,34 @@ func (s *MetricsService) GetAllNodes(ctx context.Context) ([]models.Node, error)
 		return nil, error
 	}
 
-	nodenameResult, error := prometheus.GetNodeInfo(ctx, s.prometheusAPI)
-
+	upResult, error := prometheus.GetNodeInfo(ctx, s.prometheusAPI)
 	if error != nil {
 		return nil, error
 	}
 
-	nodes := make([]models.Node, 0, len(nodenameResult))
+	unameResult, error := prometheus.GetNodeUname(ctx, s.prometheusAPI)
+	if error != nil {
+		return nil, error
+	}
 
-	for _, sample := range nodenameResult {
+	instanceToNodename := make(map[string]string)
+	for _, sample := range unameResult {
+		instance := string(sample.Metric["instance"])
 		nodename := string(sample.Metric["nodename"])
+		instanceToNodename[instance] = nodename
+	}
+
+	nodes := make([]models.Node, 0, len(upResult))
+
+	for _, sample := range upResult {
 		nodeExporterInstance := string(sample.Metric["instance"])
 		cadvisorInstance := strings.Replace(nodeExporterInstance, config.NodeExporterPort, config.CadvisorPort, 1)
+
+		nodename, hasNodename := instanceToNodename[nodeExporterInstance]
+		if !hasNodename {
+			log.Printf("Warning: node %s has no nodename info even in history - skipping", nodeExporterInstance)
+			continue
+		}
 
 		node, error := s.parseNodename(nodename)
 		if error != nil {
@@ -120,22 +148,26 @@ func (s *MetricsService) GetAllNodes(ctx context.Context) ([]models.Node, error)
 		uptime, error := s.getNodeUptime(ctx, nodeExporterInstance)
 		if error != nil {
 			log.Printf("Warning: failed to get uptime for %s: %v", nodeExporterInstance, error)
-			continue
+			node.Uptime = 0
+		} else {
+			node.Uptime = uptime
 		}
-		node.Uptime = uptime
 
 		network, error := s.getNodeNetworkStatistics(ctx, nodeExporterInstance)
 		if error != nil {
 			log.Printf("Warning: failed to get network stats for %s: %v", nodeExporterInstance, error)
-			continue
+			node.Network = models.NodeNetwork{Download: 0, Upload: 0}
+		} else {
+			node.Network = network
 		}
-		node.Network = network
 
 		containers, error := s.getNodeContainers(ctx, cadvisorInstance)
 		if error != nil {
 			log.Printf("Warning: failed to get containers for %s: %v", cadvisorInstance, error)
+			node.Containers = []models.Container{}
+		} else {
+			node.Containers = containers
 		}
-		node.Containers = containers
 
 		nodes = append(nodes, node)
 	}

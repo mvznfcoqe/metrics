@@ -9,12 +9,13 @@ import (
 	"github.com/prometheus/common/model"
 )
 
-const NetworkRateInterval = "10m"
+const NetworkRateInterval = "10s"
 const NetworkDeviceFilter = `lo|docker.*|taislcale.*|veth.*|br-.*`
 const NodeExportersJob = "node-exporters"
 
 const (
-	NodesQuery                   = `node_uname_info{job="` + NodeExportersJob + `"}`
+	NodesQuery                   = `up{job="` + NodeExportersJob + `"}`
+	NodeUnameQuery               = `node_uname_info{job="` + NodeExportersJob + `"} or last_over_time(node_uname_info{job="` + NodeExportersJob + `"}[4d])`
 	UptimeQueryTemplate          = `time() - node_boot_time_seconds{instance="%s"}`
 	NetworkDownloadQueryTemplate = `rate(node_network_receive_bytes_total{instance="%s",device!~"%s"}[%s])`
 	NetworkUploadQueryTemplate   = `rate(node_network_transmit_bytes_total{instance="%s",device!~"%s"}[%s])`
@@ -39,6 +40,10 @@ func QueryVector(ctx context.Context, api v1.API, query string) (model.Vector, e
 
 func GetNodeInfo(ctx context.Context, api v1.API) (model.Vector, error) {
 	return QueryVector(ctx, api, NodesQuery)
+}
+
+func GetNodeUname(ctx context.Context, api v1.API) (model.Vector, error) {
+	return QueryVector(ctx, api, NodeUnameQuery)
 }
 
 func GetNodeUptime(ctx context.Context, api v1.API, instance string) (model.Vector, error) {
