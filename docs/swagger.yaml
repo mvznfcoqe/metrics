@@ -35,6 +35,13 @@ definitions:
       upload:
         type: integer
     type: object
+  models.Provider:
+    properties:
+      description:
+        type: string
+      link:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -55,4 +62,20 @@ paths:
       summary: Get all nodes
       tags:
       - metrics
+  /providers:
+    get:
+      description: Returns object with provider names as keys and provider information
+        as values
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.Provider'
+            type: object
+      summary: Get all providers
+      tags:
+      - providers
 swagger: "2.0"

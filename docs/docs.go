@@ -40,6 +40,29 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/providers": {
+            "get": {
+                "description": "Returns object with provider names as keys and provider information as values",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "providers"
+                ],
+                "summary": "Get all providers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/models.Provider"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -96,6 +119,17 @@ const docTemplate = `{
                 },
                 "upload": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.Provider": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
                 }
             }
         }

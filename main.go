@@ -30,9 +30,11 @@ func main() {
 
 	metricsService := service.NewMetricsService(prometheusClient.API())
 	metricsHandler := handlers.NewMetricsHandler(metricsService)
+	providersHandler := handlers.NewProvidersHandler()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/metrics/nodes", metricsHandler.GetAllNodes)
+	mux.HandleFunc("/providers", providersHandler.GetProviders)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   config.AllowedOrigins,
