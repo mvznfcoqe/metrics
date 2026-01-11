@@ -1,6 +1,6 @@
 package models
 
 type Container struct {
-	Name    string `json:"name"`
-	Project string `json:"project"`
+	Name    string `json:"name" binding:"required"`
+	Project string `json:"project" binding:"required"`
 }

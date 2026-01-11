@@ -12,6 +12,9 @@ definitions:
         type: string
       project:
         type: string
+    required:
+    - name
+    - project
     type: object
   models.Node:
     properties:
@@ -27,6 +30,12 @@ definitions:
         type: string
       uptime:
         type: number
+    required:
+    - containers
+    - location
+    - network
+    - provider
+    - uptime
     type: object
   models.NodeNetwork:
     properties:
@@ -34,6 +43,9 @@ definitions:
         type: integer
       upload:
         type: integer
+    required:
+    - download
+    - upload
     type: object
   models.Provider:
     properties:

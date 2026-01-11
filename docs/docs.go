@@ -79,6 +79,10 @@ const docTemplate = `{
         },
         "models.Container": {
             "type": "object",
+            "required": [
+                "name",
+                "project"
+            ],
             "properties": {
                 "name": {
                     "type": "string"
@@ -90,6 +94,13 @@ const docTemplate = `{
         },
         "models.Node": {
             "type": "object",
+            "required": [
+                "containers",
+                "location",
+                "network",
+                "provider",
+                "uptime"
+            ],
             "properties": {
                 "containers": {
                     "type": "array",
@@ -113,6 +124,10 @@ const docTemplate = `{
         },
         "models.NodeNetwork": {
             "type": "object",
+            "required": [
+                "download",
+                "upload"
+            ],
             "properties": {
                 "download": {
                     "type": "integer"
