@@ -1,0 +1,8 @@
+# Project Rules
+
+## Code Style
+
+- NEVER add comments to code
+- Code should be self-documenting through clear variable names, function names, and structure
+- Do not add docstrings, inline comments, or explanatory comments to any code files
+- Only exception: retain existing comments if they already exist in the codebase, but do not add new ones

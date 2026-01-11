@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -17,12 +18,20 @@ type Config struct {
 func Load() (*Config, error) {
 	config := &Config{}
 
-	err := cleanenv.ReadConfig(".env", config)
+	configPath := ".env"
 
-	if err != nil {
+	var loadConfigError error
+
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		loadConfigError = cleanenv.ReadEnv(config)
+	} else {
+		loadConfigError = cleanenv.ReadConfig(configPath, config)
+	}
+
+	if loadConfigError != nil {
 		log.Fatal("Failed to load environment configuration")
 
-		return nil, err
+		return nil, loadConfigError
 	}
 
 	return config, nil
