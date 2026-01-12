@@ -21,3 +21,8 @@ Copy and fill .env file in `./deployment`
 Then run docker compose
 
 `sudo docker compose up -d`
+
+## TODO
+
+- [ ] Add rate limiter
+- [ ] Add more information about services (uptime, maybe versions, maybe add links for each service?)
