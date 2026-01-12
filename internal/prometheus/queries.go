@@ -9,7 +9,7 @@ import (
 	"github.com/prometheus/common/model"
 )
 
-const NetworkRateInterval = "10s"
+const NetworkRateInterval = "20s"
 const NetworkDeviceFilter = `lo|docker.*|taislcale.*|veth.*|br-.*`
 const NodeExportersJob = "node-exporters"
 
